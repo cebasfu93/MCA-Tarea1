@@ -1,11 +1,9 @@
-oscilador.pdf : plot.py output.txt
+oscilador.pdf : plot.py a.out
 	python plot.py
-
-output.txt : a.out
-	./a.out > output.txt
 
 a.out : Fermi.c
 	gcc -lm Fermi.c
+	time ./a.out
 
 clean :
-	rm -f output.txt oscilador.pdf a.out
+	rm -rf oscilador.pdf a.out energias.txt posiciones.txt energias.pdf temp/

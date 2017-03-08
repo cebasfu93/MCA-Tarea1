@@ -8,12 +8,12 @@
 #define delt 0.005
 #define pi 3.1415
 
-void init(double *masas);
+void init(double * masas);
 double * Newton(double * masas);
 double freq_2(int k);
 double Q(int k, double * masas);
 double * derv(double * masas, double * masas_ant);
-double E(int k, double * masas, double * vels);
+double E(int k, double * masas, double * masas_ant);
 
 int main(){
 
@@ -21,8 +21,9 @@ int main(){
   posiciones=fopen("posiciones.txt", "w");
   FILE * energias;
   energias=fopen("energias.txt", "w");
+
   int i, j;
-  int iter=5.0*pow(N,2.2);
+  int iter=(int) 5.0*pow(N,2.2)/delt;
   double *osc;
   osc=malloc(N*sizeof(double));
   double *osc_p;
@@ -56,6 +57,7 @@ int main(){
     }
 
     if(i%(iter/1000)==0){
+      //printf("%d \n", i);
       for(j=0;j<N;j++){
         fprintf(posiciones, "%lf ", osc[j]);
       }
@@ -68,10 +70,10 @@ int main(){
   }
 }
 
-void init(double *masas){
+void init(double * masas){
   int i;
   for (i=0;i<N;i++){
-    masas[i]=sin(pi*i/(N-1));
+    masas[i]=sin((pi*i)/(N-1));
   }
 }
 double * Newton(double * masas){
@@ -95,9 +97,9 @@ double Q(int k, double * masas){
   double var;
   int i;
   for(i=0;i<N;i++){
-    var+=masas[i]*sin(k*i*pi/N);
+    var+=masas[i]*sin(k*i*pi/(N+1));
   }
-  var=var*pow(2.0/N,0.5);
+  var=var*pow(2.0/(N+1),0.5);
   return var;
 
 }
@@ -114,6 +116,6 @@ double * derv(double * masas, double * masas_ant){
 }
 double E(int k, double * masas, double * masas_ant){
   double var;
-  var=1.0/2.0*(pow(Q(k, derv(masas, masas_ant)),2)+freq_2(k)*pow(Q(k, masas),2));
+  var=0.5*(pow(Q(k, derv(masas, masas_ant)),2)+freq_2(k)*pow(Q(k, masas),2));
   return var;
 }

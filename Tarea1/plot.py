@@ -1,5 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import imageio #Para hacer el gif
+import os #Para crear directorio temporal
+import shutil #Para eliminar directorio temporal
 
 inp=np.genfromtxt('posiciones.txt', delimiter=' ')
 eners=np.genfromtxt('energias.txt', delimiter=' ')
@@ -26,3 +29,18 @@ for i in range(len(eners[0,:])-1):
 plt.legend(framealpha=0.5)
 plt.savefig('energias.pdf', format='pdf')
 plt.close()
+
+os.mkdir('temp')
+with imageio.get_writer('./movimiento.gif', mode='I') as writer:
+    for i in range(len(inp[:,0])):
+        if (i%20==0):
+            fig=plt.figure()
+            plt.grid()
+            plt.plot(inp[i,:], 'bo')
+            plt.xlim((0,63))
+            plt.ylim((-1,1))
+            plt.savefig('./temp/'+str(i)+'.png', format='png')
+            image=imageio.imread('./temp/'+str(i)+'.png')
+            writer.append_data(image)
+
+shutil.rmtree('temp')
