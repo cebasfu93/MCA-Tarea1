@@ -82,7 +82,7 @@ double * Newton(double * masas, int thread){
   temp=malloc(N*sizeof(double));
   temp[0]=0.0; temp[N-1]=0.0;
 
-  omp_set_num_threads(thread)
+  omp_set_num_threads(thread);
   #pragma parallel for private(i), shared(masas, temp)
     for(i=1;i<N-1;i++){
       temp[i]=masas[i+1]-2*masas[i]+masas[i-1]+beta*(pow(masas[i+1]-masas[i],2)-pow(masas[i]-masas[i-1],2));
