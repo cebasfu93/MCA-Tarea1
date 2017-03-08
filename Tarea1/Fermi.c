@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-//#include <omp.h>
+#include <omp.h>
 
 #define beta 1.0
 #define N 64
@@ -9,21 +9,22 @@
 #define pi 3.1415
 
 void init(double * masas);
-double * Newton(double * masas);
+double * Newton(double * masas, int thread);
 double freq_2(int k);
 double Q(int k, double * masas);
 double * derv(double * masas, double * masas_ant);
 double E(int k, double * masas, double * masas_ant);
 
-int main(){
+int main(int argc, char *argv[]){
 
   FILE * posiciones;
   posiciones=fopen("posiciones.txt", "w");
   FILE * energias;
   energias=fopen("energias.txt", "w");
+  int procs = argv[1][0]-'0';
 
   int i, j;
-  int iter=(int) 5.0*pow(N,2.2)/delt;
+  int iter = (int) 5.0*pow(N,2.2)/delt;
   double *osc;
   osc=malloc(N*sizeof(double));
   double *osc_p;
@@ -35,7 +36,7 @@ int main(){
   double *acc;
   acc=malloc(N*sizeof(double));
   init(osc_p);
-  acc=Newton(osc_p);
+  acc=Newton(osc_p, procs);
   for(j=0;j<N;j++){
     vels[j]=0.0;
     vels_p[j]=0.0;
@@ -48,7 +49,7 @@ int main(){
     for(j=1;j<N-1;j++){
       osc[j]=osc_p[j]+vels[j]*delt;
     }
-    acc=Newton(osc);
+    acc=Newton(osc, procs);
     for(j=1;j<N-1;j++){
       vels_p[j]=vels[j];
     }
@@ -57,7 +58,6 @@ int main(){
     }
 
     if(i%(iter/1000)==0){
-      //printf("%d \n", i);
       for(j=0;j<N;j++){
         fprintf(posiciones, "%lf ", osc[j]);
       }
@@ -76,15 +76,16 @@ void init(double * masas){
     masas[i]=sin((pi*i)/(N-1));
   }
 }
-double * Newton(double * masas){
+double * Newton(double * masas, int thread){
   int i;
   double *temp;
   temp=malloc(N*sizeof(double));
   temp[0]=0.0; temp[N-1]=0.0;
 
-  //#pragma parallel for private(i), shared(masas, temp)
+  omp_set_num_threads(thread)
+  #pragma parallel for private(i), shared(masas, temp)
     for(i=1;i<N-1;i++){
-      temp[i]=masas[i+1]-2*masas[i]+masas[i-1]+beta*(pow(masas[i+1]-masas[i],3)-pow(masas[i]-masas[i-1],3));
+      temp[i]=masas[i+1]-2*masas[i]+masas[i-1]+beta*(pow(masas[i+1]-masas[i],2)-pow(masas[i]-masas[i-1],2));
     }
   return temp;
 }
