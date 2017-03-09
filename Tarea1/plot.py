@@ -6,7 +6,20 @@ import shutil #Para eliminar directorio temporal
 
 inp=np.genfromtxt('posiciones.txt', delimiter=' ')
 eners=np.genfromtxt('energias.txt', delimiter=' ')
+times=np.genfromtxt('tiempo.txt')
 
+fig=plt.figure()
+ax=plt.axes()
+plt.grid()
+plt.xlabel('Procesadores')
+plt.ylabel('Tiempo (s)')
+plt.title('Tiempo de usuario en funcion de numero de procesadores')
+plt.xlim((0,5))
+plt.plot([1,2,4], times, 'ro', ms=6)
+plt.savefig('tiempo.pdf', format='pdf')
+plt.close()
+
+######  IMSHOW  #####
 fig=plt.figure()
 ax=plt.axes()
 plt.grid()
@@ -17,6 +30,7 @@ plt.colorbar()
 plt.savefig('oscilador.pdf', format='pdf')
 plt.close()
 
+######  Energias  #####
 fig=plt.figure()
 ax=plt.axes()
 plt.grid()
@@ -30,6 +44,7 @@ plt.legend(framealpha=0.5)
 plt.savefig('energias.pdf', format='pdf')
 plt.close()
 
+######  GIF  #####
 os.mkdir('temp')
 with imageio.get_writer('./movimiento.gif', mode='I') as writer:
     for i in range(len(inp[:,0])):
@@ -42,5 +57,4 @@ with imageio.get_writer('./movimiento.gif', mode='I') as writer:
             plt.savefig('./temp/'+str(i)+'.png', format='png')
             image=imageio.imread('./temp/'+str(i)+'.png')
             writer.append_data(image)
-
 shutil.rmtree('temp')
