@@ -36,7 +36,7 @@ int main(int argc, char *argv[]){
   double *acc;
   acc=malloc(N*sizeof(double));
   init(osc_p);
-  acc=Newton(osc_p, procs);
+  acc=Newton(osc_p);
   for(j=0;j<N;j++){
     vels[j]=0.0;
     vels_p[j]=0.0;
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]){
   omp_set_num_threads(procs);
   for (i=0;i<iter;i++){
 
-    #pragma omp parallel for private(j), shared(osc, osc_p, vels, delt)
+    #pragma omp parallel for private(j), shared(osc, osc_p, vels)
     for(j=1;j<N-1;j++){
       osc[j]=osc_p[j]+vels[j]*delt;
     }
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]){
       vels_p[j]=vels[j];
     }
 
-    #pragma omp parallel for private(j), shared(vels, vels_p, acc, delt)
+    #pragma omp parallel for private(j), shared(vels, vels_p, acc)
     for(j=1;j<N-1;j++){
       vels[j]=vels_p[j]+acc[j]*delt;
     }
