@@ -6,7 +6,8 @@ import shutil #Para eliminar directorio temporal
 
 inp=np.genfromtxt('posiciones.txt', delimiter=' ')
 eners=np.genfromtxt('energias.txt', delimiter=' ')
-times=np.genfromtxt('tiempo.txt')
+z = np.genfromtxt('tiempo.txt', dtype='string',usecols=0)
+times = [float(z[0].split('u')[0]), float(z[2].split('u')[0]), float(z[4].split('u')[0])]
 
 fig=plt.figure()
 ax=plt.axes()
