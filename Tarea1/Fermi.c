@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-//#include <omp.h>
+#include <omp.h>
 
 #define beta 1.0
 #define N 64
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]){
     for(j=1;j<N-1;j++){
       vels_p[j]=vels[j];
     }
-    
+
     #pragma omp parallel for private(j), shared(vels, vels_p, acc, delt)
     for(j=1;j<N-1;j++){
       vels[j]=vels_p[j]+acc[j]*delt;
