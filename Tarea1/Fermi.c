@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <omp.h>
+//#include <omp.h>
 
 #define beta 1.0
 #define N 64
@@ -9,7 +9,7 @@
 #define pi 3.1415
 
 void init(double * masas);
-double * Newton(double * masas, int thread);
+double * Newton(double * masas);
 double freq_2(int k);
 double Q(int k, double * masas);
 double * derv(double * masas, double * masas_ant);
@@ -45,14 +45,19 @@ int main(int argc, char *argv[]){
     vels[j]=acc[j]*delt/2.0;
   }
 
+  omp_set_num_threads(procs);
   for (i=0;i<iter;i++){
+
+    #pragma omp parallel for private(j), shared(osc, osc_p, vels, delt)
     for(j=1;j<N-1;j++){
       osc[j]=osc_p[j]+vels[j]*delt;
     }
-    acc=Newton(osc, procs);
+    acc=Newton(osc);
     for(j=1;j<N-1;j++){
       vels_p[j]=vels[j];
     }
+    
+    #pragma omp parallel for private(j), shared(vels, vels_p, acc, delt)
     for(j=1;j<N-1;j++){
       vels[j]=vels_p[j]+acc[j]*delt;
     }
@@ -76,14 +81,12 @@ void init(double * masas){
     masas[i]=sin((pi*i)/(N-1));
   }
 }
-double * Newton(double * masas, int thread){
+double * Newton(double * masas){
   int i;
   double *temp;
   temp=malloc(N*sizeof(double));
   temp[0]=0.0; temp[N-1]=0.0;
 
-  omp_set_num_threads(thread);
-  #pragma parallel for private(i), shared(masas, temp)
     for(i=1;i<N-1;i++){
       temp[i]=masas[i+1]-2*masas[i]+masas[i-1]+beta*(pow(masas[i+1]-masas[i],2)-pow(masas[i]-masas[i-1],2));
     }
